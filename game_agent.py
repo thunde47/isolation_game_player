@@ -211,9 +211,10 @@ class MinimaxPlayer(IsolationPlayer):
         """
         if self.time_left() < self.TIMER_THRESHOLD:
             raise SearchTimeout()
-
+        
         # TODO: finish this function!
-        raise NotImplementedError
+        #raise NotImplementedError
+        return game.get_legal_moves()[0]
 
 
 class AlphaBetaPlayer(IsolationPlayer):
@@ -253,7 +254,7 @@ class AlphaBetaPlayer(IsolationPlayer):
             (-1, -1) if there are no available legal moves.
         """
         self.time_left = time_left
-
+        
         # TODO: finish this function!
         raise NotImplementedError
 
