@@ -214,8 +214,35 @@ class MinimaxPlayer(IsolationPlayer):
         
         # TODO: finish this function!
         #raise NotImplementedError
-        return game.get_legal_moves()[0]
+        v=float("-inf")
+        argmax_action=(-1,-1)
+        for action in game.get_legal_moves():
+            if self==game.active_player:
+                new_score=min_val(game.forecast_move(action), depth-1)
+            elif self==game.inactive_player:
+                new_score=max_val(game.forecast_move(action), depth-1)    
+            if new_score>v:
+                v=new_score
+                argmax_action=action
+        return argmax_action        
 
+    def min_value(self, game, depth):
+        if self.time_left() < self.TIMER_THRESHOLD:
+            raise SearchTimeout()    
+        if depth==0: return self.score
+        v=float("inf")
+        for move in game.get_legal_moves():
+            v=min(v,max_value(game.forecast_move(action), depth-1)) 
+        return v
+    
+    def max_value(self, game, depth):
+        if self.time_left() < self.TIMER_THRESHOLD:
+            raise SearchTimeout()    
+        if depth==0: return self.score
+        v=float("-inf")
+        for move in game.get_legal_moves():
+            v=max(v,min_value(game.forecast_move(action), depth-1)) 
+        return v    
 
 class AlphaBetaPlayer(IsolationPlayer):
     """Game-playing agent that chooses a move using iterative deepening minimax
