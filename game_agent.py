@@ -284,8 +284,13 @@ class AlphaBetaPlayer(IsolationPlayer):
         best_move=(-1,-1)
         # TODO: finish this function!
         #raise NotImplementedError
+        depth=0
         try:
-            return self.alphabeta(game, self.search_depth)
+            while depth>=0:
+                best_move=self.alphabeta(game, depth)
+                if self.time_left()<0:
+                    raise SearchTimeout()
+                depth=depth+1
         except SearchTimeout:
             pass
         return best_move
