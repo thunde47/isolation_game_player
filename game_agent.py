@@ -124,7 +124,7 @@ class MinimaxPlayer(IsolationPlayer):
     search. You must finish and test this player to make sure it properly uses
     minimax to return a good move before the search time limit expires.
     """
-
+    
     def get_move(self, game, time_left):
         """Search for the best move from the available legal moves and return a
         result before the time limit expires.
@@ -158,7 +158,7 @@ class MinimaxPlayer(IsolationPlayer):
         # Initialize the best move so that this function returns something
         # in case the search fails due to timeout
         best_move = (-1, -1)
-
+        print("Entered get_move")
         try:
             # The try/except block will automatically catch the exception
             # raised when the timer is about to expire.
@@ -216,32 +216,37 @@ class MinimaxPlayer(IsolationPlayer):
         #raise NotImplementedError
         v=float("-inf")
         argmax_action=(-1,-1)
+        new_score=0
         for action in game.get_legal_moves():
             if self==game.active_player:
-                new_score=min_val(game.forecast_move(action), depth-1)
+                new_score=self.min_value(game.forecast_move(action), depth-1)
+                print(new_score)
             elif self==game.inactive_player:
-                new_score=max_val(game.forecast_move(action), depth-1)    
+                new_score=self.max_value(game.forecast_move(action), depth-1)    
+                print(new_score)
             if new_score>v:
                 v=new_score
                 argmax_action=action
         return argmax_action        
 
     def min_value(self, game, depth):
+        print("Entered min_value")
         if self.time_left() < self.TIMER_THRESHOLD:
             raise SearchTimeout()    
-        if depth==0: return self.score
+        if depth==0: return self.score(game, self)
         v=float("inf")
         for move in game.get_legal_moves():
-            v=min(v,max_value(game.forecast_move(action), depth-1)) 
+            v=min(v,self.max_value(game.forecast_move(move), depth-1)) 
         return v
     
     def max_value(self, game, depth):
+        print("Entered max_value")
         if self.time_left() < self.TIMER_THRESHOLD:
             raise SearchTimeout()    
-        if depth==0: return self.score
+        if depth==0: return self.score(game,self)
         v=float("-inf")
         for move in game.get_legal_moves():
-            v=max(v,min_value(game.forecast_move(action), depth-1)) 
+            v=max(v,self.min_value(game.forecast_move(move), depth-1)) 
         return v    
 
 class AlphaBetaPlayer(IsolationPlayer):
