@@ -10,8 +10,6 @@ import game_agent
 
 from importlib import reload
 
-import timeit
-
 class IsolationTest(unittest.TestCase):
     """Unit tests for isolation agents"""
 
