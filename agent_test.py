@@ -10,28 +10,31 @@ import game_agent
 
 from importlib import reload
 
-def time_left():
-    return 1000000
+import timeit
+
 class IsolationTest(unittest.TestCase):
     """Unit tests for isolation agents"""
 
     def setUp(self):
         reload(game_agent)
-        self.player1 = "Player1"
-        self.player2 = "Player2"
+        self.player1 = game_agent.MinimaxPlayer(score_fn=game_agent.custom_score)        
+        self.player2 = game_agent.AlphaBetaPlayer(score_fn=game_agent.custom_score)        
         self.game = isolation.Board(self.player1, self.player2)
+        print("player1:",self.player1)
+        print("player2:",self.player2)
         
     def test_MiniMaxPlayer(self):
-        
-        
-        self.game.apply_move((4,4))
-        self.game.apply_move((0,1))
-        assert(self.player1 == self.game.active_player)
-        isolation_player_object=game_agent.IsolationPlayer()
-        game_agent_object=game_agent.MinimaxPlayer(isolation_player_object)
-        new_move=game_agent.MinimaxPlayer.get_move(game_agent_object, self.game,time_left)
-        
+        self.game.apply_move((2,3))
+        self.game.apply_move((0,0))
+        assert(self.player1==self.game.active_player)
         print(self.game.to_string())
+        #print(self.game.get_legal_moves())
+        winner, history, outcome=self.game.play()
+        print(history)
+        print("winner is {0} with outcome {1}".format(winner,outcome))
+        print(self.game.to_string())
+        #game_copy=self.game.copy()
+        #curr_move = self.player1.get_move(game_copy, time_left)
 
 
 if __name__ == '__main__':
