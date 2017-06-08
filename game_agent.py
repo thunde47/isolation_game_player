@@ -40,7 +40,7 @@ def custom_score(game, player):
     if game.is_winner(player):
         return float("inf")
 
-    return float(len(game.get_legal_moves(player))-2.0*len(game.get_legal_moves(game.get_opponent(player))))
+    return float(len(game.get_legal_moves(player))-2.5*len(game.get_legal_moves(game.get_opponent(player))))
 
 def custom_score_2(game, player):
     """Calculate the heuristic value of a game state from the point of view
@@ -70,8 +70,8 @@ def custom_score_2(game, player):
         return float("-inf")
     if game.is_winner(player):
         return float("inf")
-
-    return float(len(game.get_legal_moves(player))-1.5*len(game.get_legal_moves(game.get_opponent(player))))
+    e=0.0001
+    return float(len(game.get_legal_moves(player))/(len(game.get_legal_moves(game.get_opponent(player)))+e))
 
 def custom_score_3(game, player):
     """Calculate the heuristic value of a game state from the point of view
@@ -101,9 +101,16 @@ def custom_score_3(game, player):
         return float("-inf")
     if game.is_winner(player):
         return float("inf")
-
-    return float(len(game.get_legal_moves(player))-2.5*len(game.get_legal_moves(game.get_opponent(player))))
-
+    e=0.0001
+    w, h = game.width / 2., game.height / 2.
+    y1, x1 = game.get_player_location(player)
+    y2, x2 = game.get_player_location(game.get_opponent(player))
+    distance1=float((h - y1)**2 + (w - x1)**2)+e
+    distance2=float((h - y2)**2 + (w - x2)**2)+e
+    weighted_moves1=float(len(game.get_legal_moves(player))/distance1)
+    weighted_moves2=float(len(game.get_legal_moves(game.get_opponent(player)))/distance2)
+    return weighted_moves1-weighted_moves2    
+        
 class IsolationPlayer:
     """Base class for minimax and alphabeta agents -- this class is never
     constructed or tested directly.
@@ -300,10 +307,8 @@ class AlphaBetaPlayer(IsolationPlayer):
         #raise NotImplementedError
         depth=1
         try:
-            while depth>=0:
+            while True:
                 best_move=self.alphabeta(game, depth)
-                if self.time_left()<0:
-                    raise SearchTimeout()
                 depth=depth+1
         except SearchTimeout:
             pass
@@ -362,11 +367,13 @@ class AlphaBetaPlayer(IsolationPlayer):
         #raise NotImplementedError
         v=float("-inf")
         argmax_action=(-1,-1)
+        if not game.get_legal_moves():
+            return argmax_action
         new_score=0
         for action in game.get_legal_moves():
             new_score=self.min_value(game.forecast_move(action), depth-1, alpha, beta)
             alpha=max(alpha,new_score)
-            if new_score>v:
+            if new_score>=v:
                 v=new_score
                 argmax_action=action
         return argmax_action
