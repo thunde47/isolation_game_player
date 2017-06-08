@@ -109,7 +109,7 @@ def custom_score_3(game, player):
     distance2=float((h - y2)**2 + (w - x2)**2)+e
     weighted_moves1=float(len(game.get_legal_moves(player))/distance1)
     weighted_moves2=float(len(game.get_legal_moves(game.get_opponent(player)))/distance2)
-    return weighted_moves1-weighted_moves2    
+    return weighted_moves1-2.0*weighted_moves2    
         
 class IsolationPlayer:
     """Base class for minimax and alphabeta agents -- this class is never
@@ -376,6 +376,8 @@ class AlphaBetaPlayer(IsolationPlayer):
             if new_score>=v:
                 v=new_score
                 argmax_action=action
+            if new_score>=beta:
+                return argmax_action
         return argmax_action
 
     def min_value(self,game, depth, alpha, beta):
