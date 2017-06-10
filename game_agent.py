@@ -9,6 +9,17 @@ class SearchTimeout(Exception):
     """Subclass base exception for code clarity. """
     pass
 
+def one_move_ahead(game, player):
+    moves_ahead=0.0
+    for move in game.get_legal_moves(player):    
+        moves_ahead+=len(game._Board__get_moves(move))   
+    return moves_ahead   
+     
+def distance_from_center(game, player):
+    w, h = game.width / 2., game.height / 2.
+    y1, x1 = game.get_player_location(player) 
+    return float((h - y1)**2 + (w - x1)**2)    
+       
 def custom_score(game, player):
     """Calculate the heuristic value of a game state from the point of view
     of the given player.
@@ -40,7 +51,7 @@ def custom_score(game, player):
     if game.is_winner(player):
         return float("inf")
 
-    return float(len(game.get_legal_moves(player))-2.5*len(game.get_legal_moves(game.get_opponent(player))))
+    return float(one_move_ahead(game, player)-one_move_ahead(game, game.get_opponent(player)))
 
 def custom_score_2(game, player):
     """Calculate the heuristic value of a game state from the point of view
@@ -102,14 +113,17 @@ def custom_score_3(game, player):
     if game.is_winner(player):
         return float("inf")
     e=0.0001
-    w, h = game.width / 2., game.height / 2.
-    y1, x1 = game.get_player_location(player)
-    y2, x2 = game.get_player_location(game.get_opponent(player))
-    distance1=float((h - y1)**2 + (w - x1)**2)+e
-    distance2=float((h - y2)**2 + (w - x2)**2)+e
-    weighted_moves1=float(len(game.get_legal_moves(player))/distance1)
-    weighted_moves2=float(len(game.get_legal_moves(game.get_opponent(player)))/distance2)
-    return weighted_moves1-2.0*weighted_moves2    
+    game_state=len(game.get_blank_spaces())/(game.width*game.height)*100.0
+    if game_state>=85:
+        return float(len(game.get_legal_moves(player))-2.0*(len(game.get_legal_moves(game.get_opponent(player)))+e))
+        
+    elif game_state<85 and game_state>=25:
+        weighted_moves1=float(len(game.get_legal_moves(player))/distance_from_center(game, player))
+        weighted_moves2=float(len(game.get_legal_moves(game.get_opponent(player)))/distance_from_center(game, game.get_opponent(player)))
+        return weighted_moves1-weighted_moves2   
+         
+    else:
+        return float(one_move_ahead(game, player)-one_move_ahead(game, game.get_opponent(player)))
         
 class IsolationPlayer:
     """Base class for minimax and alphabeta agents -- this class is never
@@ -299,17 +313,29 @@ class AlphaBetaPlayer(IsolationPlayer):
         -------
         (int, int)
             Board coordinates corresponding to a legal move; may return
-            (-1, -1) if there are no available legal moves.
+            (-1, -1) if there are no available legal mo
+            ves.
         """
         self.time_left = time_left
-        best_move=(-1,-1)
+        
         # TODO: finish this function!
         #raise NotImplementedError
+        legal_moves=game.get_legal_moves()
+        if len(legal_moves)!=0:
+            best_move=random.choice(legal_moves)
+            last_best_move=best_move
+        else: return (-1,-1)
         depth=1
         try:
             while True:
-                best_move=self.alphabeta(game, depth)
-                depth=depth+1
+                move=self.alphabeta(game, depth)
+                if move != (-1,-1):
+                    best_move=move
+                    last_best_move=move
+                else:
+                    best_move=last_best_move
+                    break
+                depth+=1
         except SearchTimeout:
             pass
         return best_move
@@ -367,10 +393,11 @@ class AlphaBetaPlayer(IsolationPlayer):
         #raise NotImplementedError
         v=float("-inf")
         argmax_action=(-1,-1)
-        if not game.get_legal_moves():
+        legal_moves=game.get_legal_moves()
+        if not legal_moves:
             return argmax_action
         new_score=0
-        for action in game.get_legal_moves():
+        for action in legal_moves:
             new_score=self.min_value(game.forecast_move(action), depth-1, alpha, beta)
             alpha=max(alpha,new_score)
             if new_score>=v:
