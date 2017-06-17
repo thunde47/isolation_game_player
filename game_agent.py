@@ -10,12 +10,14 @@ class SearchTimeout(Exception):
     pass
 
 def one_move_ahead(game, player):
+    """Function that returns the number of moves left one ply ahead"""
     moves_ahead=0.0
     for move in game.get_legal_moves(player):    
         moves_ahead+=len(game._Board__get_moves(move))   
     return moves_ahead   
      
 def distance_from_center(game, player):
+    """Function that returns the distance of the player location from the center"""
     w, h = game.width / 2., game.height / 2.
     y1, x1 = game.get_player_location(player) 
     return float((h - y1)**2 + (w - x1)**2)    
@@ -44,8 +46,6 @@ def custom_score(game, player):
     float
         The heuristic value of the current game state to the specified player.
     """
-    # TODO: finish this function!
-    #raise NotImplementedError
     if game.is_loser(player):
         return float("-inf")
     if game.is_winner(player):
@@ -75,8 +75,6 @@ def custom_score_2(game, player):
     float
         The heuristic value of the current game state to the specified player.
     """
-    # TODO: finish this function!
-    #raise NotImplementedError
     if game.is_loser(player):
         return float("-inf")
     if game.is_winner(player):
@@ -106,24 +104,11 @@ def custom_score_3(game, player):
     float
         The heuristic value of the current game state to the specified player.
     """
-    # TODO: finish this function!
-    #raise NotImplementedError
     if game.is_loser(player):
         return float("-inf")
     if game.is_winner(player):
         return float("inf")
-    e=0.0001
-    game_state=len(game.get_blank_spaces())/(game.width*game.height)*100.0
-    if game_state>=85:
-        return float(len(game.get_legal_moves(player))-2.0*(len(game.get_legal_moves(game.get_opponent(player)))))
-        
-    elif game_state<85 and game_state>=25:
-        weighted_moves1=float(len(game.get_legal_moves(player))/distance_from_center(game, player))
-        weighted_moves2=float(len(game.get_legal_moves(game.get_opponent(player)))/distance_from_center(game, game.get_opponent(player)))
-        return weighted_moves1-weighted_moves2   
-         
-    else:
-        return float(one_move_ahead(game, player)-one_move_ahead(game, game.get_opponent(player)))
+    return float(one_move_ahead(game, player)-one_move_ahead(game, game.get_opponent(player)))
         
 class IsolationPlayer:
     """Base class for minimax and alphabeta agents -- this class is never
@@ -247,9 +232,7 @@ class MinimaxPlayer(IsolationPlayer):
         if self.time_left() < self.TIMER_THRESHOLD:
             raise SearchTimeout()
 
-        # TODO: finish this function!
-        #raise NotImplementedError
-        v=float("-inf")
+        v=float("-inf") # v is the current score
         argmax_action=(-1,-1)
         new_score=0
         for action in game.get_legal_moves():
@@ -318,18 +301,18 @@ class AlphaBetaPlayer(IsolationPlayer):
         """
         self.time_left = time_left
         
-        # TODO: finish this function!
-        #raise NotImplementedError
         legal_moves=game.get_legal_moves()
         if len(legal_moves)!=0:
-            if len(legal_moves)==game.width*game.height:
+            if len(legal_moves)==game.width*game.height: #If its the first move then play it in the center
                 best_move=((game.width-1)/2,(game.height-1)/2)
             else:    
                 best_move=random.choice(legal_moves)
-            last_best_move=best_move
+            last_best_move=best_move  #Choose the last best move instead of forfeiting
+            #Even if the game ends in a loss, there is no point forfeiting, because other
+            #player may not play a perfect game.
         else: return (-1,-1)
         depth=1
-        try:
+        try: #Try iteratively deepening the tree
             while True:
                 move=self.alphabeta(game, depth)
                 if move != (-1,-1):
@@ -392,8 +375,6 @@ class AlphaBetaPlayer(IsolationPlayer):
         if self.time_left() < self.TIMER_THRESHOLD:
             raise SearchTimeout()
 
-        # TODO: finish this function!
-        #raise NotImplementedError
         v=float("-inf")
         argmax_action=(-1,-1)
         legal_moves=game.get_legal_moves()
