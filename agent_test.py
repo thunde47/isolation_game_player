@@ -21,18 +21,23 @@ class IsolationTest(unittest.TestCase):
         print("player1:",self.player1)
         print("player2:",self.player2)
         
-    def test_MiniMaxPlayer(self):
-        self.game.apply_move((2,3))
-        self.game.apply_move((0,0))
-        assert(self.player1==self.game.active_player)
+    def test_Player(self):
+        print(self.game.get_legal_moves())
+        
+        #self.game.apply_move((2,3))
+        #self.game.apply_move((0,0))
+        assert(self.player2==self.game.active_player)
+        
         print(self.game.to_string())
         #print(self.game.get_legal_moves())
         winner, history, outcome=self.game.play()
-        print(history)
-        print("winner is {0} with outcome {1}".format(winner,outcome))
-        print(self.game.to_string())
+        #print(history)
+        #print("winner is {0} with outcome {1}".format(winner,outcome))
+        #print(self.game.to_string())
         #game_copy=self.game.copy()
         #curr_move = self.player1.get_move(game_copy, time_left)
+        
+       
 
 
 if __name__ == '__main__':

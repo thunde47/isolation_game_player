@@ -108,7 +108,13 @@ def custom_score_3(game, player):
         return float("-inf")
     if game.is_winner(player):
         return float("inf")
-    return float(one_move_ahead(game, player)-one_move_ahead(game, game.get_opponent(player)))
+    game_state=len(game.get_blank_spaces())/(game.width*game.height)
+    e=0.0001
+    #if game_state>=0.:
+    h1 = float(len(game.get_legal_moves(player))-2.5*(len(game.get_legal_moves(game.get_opponent(player)))+e))
+    #else:        
+    h2 = float(one_move_ahead(game, player)-one_move_ahead(game, game.get_opponent(player)))
+    return game_state*h1+(1-game_state)*h2
         
 class IsolationPlayer:
     """Base class for minimax and alphabeta agents -- this class is never
@@ -300,10 +306,11 @@ class AlphaBetaPlayer(IsolationPlayer):
             ves.
         """
         self.time_left = time_left
-        
+
         legal_moves=game.get_legal_moves()
+
         if len(legal_moves)!=0:
-            if len(legal_moves)==game.width*game.height: #If its the first move then play it in the center
+            if len(legal_moves)==49: #If its the first move then play it in the center
                 best_move=((game.width-1)/2,(game.height-1)/2)
             else:    
                 best_move=random.choice(legal_moves)
@@ -311,6 +318,7 @@ class AlphaBetaPlayer(IsolationPlayer):
             #Even if the game ends in a loss, there is no point forfeiting, because other
             #player may not play a perfect game.
         else: return (-1,-1)
+
         depth=1
         try: #Try iteratively deepening the tree
             while True:
